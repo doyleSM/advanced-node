@@ -2,13 +2,15 @@ import { AuthenticationError } from '@/domain/errors'
 import { FacebookAuthenticationService } from '@/data/services'
 
 import { mock, MockProxy } from 'jest-mock-extended'
-import { LoadFacebookUserApi } from '../interfaces/apis'
+import { LoadFacebookUserApi } from '@/data/interfaces/apis'
+import { LoadUserAccountRepository } from '@/data/interfaces/repositories'
 
 const token = 'any_token'
 
 describe('FacebookAuthenticationService', () => {
   let loadFacebookUserApi: MockProxy<LoadFacebookUserApi>
   let sut: FacebookAuthenticationService
+  let loadUserAccountRepository: MockProxy<LoadUserAccountRepository>
 
   beforeEach(() => {
     loadFacebookUserApi = mock()
@@ -17,7 +19,11 @@ describe('FacebookAuthenticationService', () => {
       name: 'any_fb_name',
       facebookId: 'any_fb_id'
     })
-    sut = new FacebookAuthenticationService(loadFacebookUserApi)
+    loadUserAccountRepository = mock()
+    sut = new FacebookAuthenticationService(
+      loadFacebookUserApi,
+      loadUserAccountRepository
+    )
   })
 
   it('shoud call LoadFacebookUserApiSpy with correct params', async () => {
@@ -34,20 +40,10 @@ describe('FacebookAuthenticationService', () => {
     expect(authResult).toEqual(new AuthenticationError())
   })
 
-  it('shoud return loadUserByEmailRepo when LoadFacebookUserApiSpy returns data', async () => {
+  it('shoud return loadUserAccountRepository when LoadFacebookUserApiSpy returns data', async () => {
     await sut.perform({ token })
 
-    expect(loadFacebookUserApi.loadUser).toHaveBeenCalledWith({ token })
-    expect(loadFacebookUserApi.loadUser).toHaveBeenCalledTimes(1)
+    expect(loadUserAccountRepository.load).toHaveBeenCalledWith({ email: 'any_fb_email' })
+    expect(loadUserAccountRepository.load).toHaveBeenCalledTimes(1)
   })
 })
-
-interface LoadUserRepository {
-  loadUser: (params: LoadUserRepository.Params) => Promise<void>
-}
-
-namespace LoadUserRepository {
-  export type Params = {
-    email: string
-  }
-}
