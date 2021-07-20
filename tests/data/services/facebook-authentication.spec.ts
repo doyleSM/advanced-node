@@ -12,6 +12,11 @@ describe('FacebookAuthenticationService', () => {
 
   beforeEach(() => {
     loadFacebookUserApi = mock()
+    loadFacebookUserApi.loadUser.mockResolvedValue({
+      email: 'any_fb_email',
+      name: 'any_fb_name',
+      facebookId: 'any_fb_id'
+    })
     sut = new FacebookAuthenticationService(loadFacebookUserApi)
   })
 
@@ -28,4 +33,21 @@ describe('FacebookAuthenticationService', () => {
 
     expect(authResult).toEqual(new AuthenticationError())
   })
+
+  it('shoud return loadUserByEmailRepo when LoadFacebookUserApiSpy returns data', async () => {
+    await sut.perform({ token })
+
+    expect(loadFacebookUserApi.loadUser).toHaveBeenCalledWith({ token })
+    expect(loadFacebookUserApi.loadUser).toHaveBeenCalledTimes(1)
+  })
 })
+
+interface LoadUserRepository {
+  loadUser: (params: LoadUserRepository.Params) => Promise<void>
+}
+
+namespace LoadUserRepository {
+  export type Params = {
+    email: string
+  }
+}
