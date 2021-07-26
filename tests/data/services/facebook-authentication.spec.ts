@@ -7,7 +7,7 @@ import { SaveFacebookAccountRepository, LoadUserAccountRepository } from '@/data
 import { mocked } from 'ts-jest/utils'
 import { AccessToken, FacebookAccount } from '@/domain/models'
 import { TokenGenerator } from '@/data/interfaces/crypto'
-const token = 'any_token'
+let token: string
 
 jest.mock('@/domain/models/facebook-account')
 
@@ -16,7 +16,9 @@ describe('FacebookAuthenticationService', () => {
   let sut: FacebookAuthenticationService
   let userAccountRepository: MockProxy<SaveFacebookAccountRepository & LoadUserAccountRepository>
   let crypto: MockProxy<TokenGenerator>
-  beforeEach(() => {
+
+  beforeAll(() => {
+    token = 'any_token'
     facebookApi = mock()
     facebookApi.loadUser.mockResolvedValue({
       email: 'any_fb_email',
@@ -30,6 +32,9 @@ describe('FacebookAuthenticationService', () => {
     })
     crypto = mock()
     crypto.generateToken.mockResolvedValue('any_generated_token')
+  })
+
+  beforeEach(() => {
     sut = new FacebookAuthenticationService(
       facebookApi,
       userAccountRepository,
