@@ -44,20 +44,20 @@ describe('PgUserAccountRepository', () => {
 
   describe('save with facebook', () => {
     it('should create an account if id is undefined', async () => {
-      const account = await sut.saveWithFacebook({
+      const pgUser = await sut.saveWithFacebook({
         email: 'any_email',
         name: 'any_name',
         facebookId: 'any_fb_id'
       })
-      const pgUser = await pgUserRepo.findOne({ email: 'any_email' })
+      const account = await pgUserRepo.findOne({ email: 'any_email' })
 
-      expect(pgUser).toEqual({
+      expect(account).toEqual({
         id: 1,
         email: 'any_email',
         name: 'any_name',
         facebookId: 'any_fb_id'
       })
-      expect(account?.id).toBe('1')
+      expect(pgUser?.id).toBe('1')
     })
 
     it('should update an account if id is defined', async () => {
@@ -67,20 +67,21 @@ describe('PgUserAccountRepository', () => {
         facebookId: 'any_fb_id'
       })
 
-      await sut.saveWithFacebook({
+      const pguser = await sut.saveWithFacebook({
         id: '1',
         email: 'new_email',
         name: 'updated_name',
         facebookId: 'updated_fb_id'
       })
-      const pgUser = await pgUserRepo.findOne({ id: 1 })
+      const account = await pgUserRepo.findOne({ id: 1 })
 
-      expect(pgUser).toEqual({
+      expect(account).toEqual({
         id: 1,
         email: 'any_email',
         name: 'updated_name',
         facebookId: 'updated_fb_id'
       })
+      expect(pguser?.id).toBe('1')
     })
   })
 })
